@@ -31,7 +31,8 @@ namespace MeuTrabalho.Controllers
 
                 connection.Close();
 
-                return RedirectToAction("Dashboard", "Home", new { name = username});
+                return Redirect($"/Home/Dashboard?name={username}");
+                //return RedirectToAction("Dashboard", "Home", new { name = username});
             }
             catch(Exception ex)
             {
