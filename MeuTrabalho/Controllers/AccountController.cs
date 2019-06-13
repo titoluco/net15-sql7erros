@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using MeuTrabalho.Models;
 using System.Data.SqlClient;
+using Dapper;
 
 namespace MeuTrabalho.Controllers
 {
@@ -21,22 +22,27 @@ namespace MeuTrabalho.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Index(LoginViewModel model)
         {
-            try
+            using (SqlConnection connection = new SqlConnection("Server=.;Database=MEUDB;Integrated Security=SSPI"))
             {
-                SqlConnection connection = new SqlConnection("Server=saturnoserver.database.windows.net;Database=MEUDB;User=aclogin;Password=homework-jan31");
-                SqlCommand cmd = new SqlCommand($"SELECT username FROM tbLogin WHERE email='{model.Email}' AND pwd='{model.Password}'", connection);
+                try
+                {                    
+                    SqlCommand cmd = new SqlCommand("SELECT username FROM tbLogin WHERE email=@email AND pwd=@pwd", connection);
+                    cmd.Parameters.AddWithValue("@email", model.Email);
+                    cmd.Parameters.AddWithValue("@pwd", model.Password);
 
-                connection.Open();
-                string username = (string)cmd.ExecuteScalar().ToString();
+                    connection.Open();
+                    string username = (string)cmd.ExecuteScalar().ToString();
 
-                connection.Close();
+                    connection.Dispose();
+                    //connection.Close();
 
-                return Redirect($"/Home/Dashboard?name={username}");
-                //return RedirectToAction("Dashboard", "Home", new { name = username});
-            }
-            catch(Exception ex)
-            {
-                return View(model);
+                    return Redirect($"/Home/Dashboard?name={username}");
+                    //return RedirectToAction("Dashboard", "Home", new { name = username});
+                }
+                catch (Exception ex)
+                {
+                    return View(model);
+                }
             }
         }
     }

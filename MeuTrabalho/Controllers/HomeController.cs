@@ -5,17 +5,18 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using MeuTrabalho.Models;
-using System.Data.SqlClient;
+using MeuTrabalho.Repository;
 
 namespace MeuTrabalho.Controllers
 {
     public class HomeController : Controller, IDisposable
     {
-        SqlConnection connection;
+        HistoryRepository historyRepository;
 
-        public HomeController()
+        public HomeController(HistoryRepository historyRepository)
         {
-            this.connection = new SqlConnection("Server=saturnoserver.database.windows.net;Database=MEUDB;User=app;Password=homework-jan31;Max Pool Size=2");
+            //this.connection = new SqlConnection("Server=.;Database=MEUDB;Integrated Security=SSPI;Max Pool Size=2;Application Name=Teste");
+            this.historyRepository = historyRepository;
         }
 
         public IActionResult Index()
@@ -39,11 +40,12 @@ namespace MeuTrabalho.Controllers
             ViewData["Message"] = "Your application description page.";
 
             try
-            {
-                this.connection.Open();
-
-                SqlCommand sql = new SqlCommand("INSERT tbLog VALUES ('about')", this.connection);
-                sql.ExecuteReader();                
+            {                
+                historyRepository.Log("INSERT tbLog VALUES ('about')");
+                //using (SqlCommand sql = new SqlCommand("INSERT tbLog VALUES ('about')", this.connection))
+                //{
+                   // connection.Execute("INSERT tbLog VALUES ('about')");
+                //}               
             }
             catch(Exception ex)
             {
@@ -59,12 +61,16 @@ namespace MeuTrabalho.Controllers
 
             try
             {
-                SqlConnection conn1 = this.connection;
+                //SqlConnection conn1 = this.connection;
+                //conn1.Open();
 
-                SqlCommand sql = new SqlCommand("INSERT tbLog VALUES ('contact')");
-                sql.Connection = conn1;
+                //SqlCommand sql = new SqlCommand("INSERT tbLog VALUES ('contact')");
+                //sql.Connection = conn1;
 
-                sql.ExecuteScalar();
+                //sql.ExecuteScalar();
+                //conn1.Close();
+                historyRepository.Log("INSERT tbLog VALUES ('contact')");
+
             }
             catch(Exception ex)
             {
